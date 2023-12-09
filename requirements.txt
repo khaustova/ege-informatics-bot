@@ -1,2 +1,2 @@
-aiogram<4.0
-python-dotenv==1.0.0
+aiogram==3.2.0
+Django==5.0
