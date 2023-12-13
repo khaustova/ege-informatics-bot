@@ -1,14 +1,14 @@
 from django.db import models
-
+from mdeditor.fields import MDTextField
 
 class User(models.Model):
-    created_at = models.DateTimeField(
-        auto_now_add=True, 
-        verbose_name='Создан'
-    )
     user_id = models.PositiveBigIntegerField(
         primary_key=True, 
         verbose_name='Telegram ID'
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True, 
+        verbose_name='Создан'
     )
     username = models.CharField(
         max_length=32, 
@@ -18,8 +18,6 @@ class User(models.Model):
     )
     first_name = models.CharField(
         max_length=256,
-        null=True, 
-        blank=True,
         verbose_name='Имя'
     )
     last_name = models.CharField(
@@ -40,3 +38,7 @@ class User(models.Model):
     
     def __str__(self):
         return f'@{self.username}' if self.username is not None else f'{self.user_id}'
+    
+    
+class Quiz(models.Model):
+    question = MDTextField()
