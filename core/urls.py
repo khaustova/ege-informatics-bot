@@ -2,10 +2,11 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import path, re_path, include
+from bot.views import index
 
 urlpatterns = [
+    path('', index),
     path('admin/', admin.site.urls),
-    re_path(r'mdeditor/', include('mdeditor.urls'))
 ]
 
 if bool(settings.DEBUG):
