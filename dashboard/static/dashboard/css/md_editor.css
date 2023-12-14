@@ -1,0 +1,49 @@
+.md-editor {
+    width: calc(100% - 200px);
+}
+
+.md-editor__textarea {
+    height: auto;
+    padding: 6px 12px;
+    font-size: 1.6rem;
+    line-height: 1.4;
+    background-color: var(--color-secondary);
+    color: var(--color-text);
+    color: inherit;
+    font-family: inherit
+}
+
+.md-editor__toolbar ul.toolbar-list {
+    margin: 0;
+    padding: 0;
+}
+
+.md-editor__toolbar {
+    margin-left: 10px;
+}
+
+.toolbar-list__button:hover {
+    cursor: pointer;
+}
+
+.toolbar-list__button {
+    float: left;
+    padding-right: 10px;
+}
+
+.md-editor__help ul.md-editor__help-list {
+    margin: 0;
+    padding: 0px;
+    padding-left: 30px;
+    list-style-type: disc;
+}
+
+.md-editor__help ul.md-editor__help-list li {
+    padding-top: 5px;
+}
+
+.md-editor__help-char {
+    color: white;
+    background-color: var(--color-accent);
+    padding: 1px 5px;
+}
