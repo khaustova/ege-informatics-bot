@@ -1,0 +1,84 @@
+<div class="md-editor">
+	<div class="md-editor__toolbar" onLoad="text_editor();">
+		<ul class="toolbar-list">
+			<li>
+        <a role="button" id="bold-button" class="toolbar-list__button">
+          <span class="material-symbols-outlined">
+          format_bold
+          </span>
+        </a>
+      </li>
+			<li>
+        <a role="button" id="italic-button" class="toolbar-list__button">
+          <span class="material-symbols-outlined">
+            format_italic
+          </span>
+        </a>
+      </li>
+			<li>
+        <a role="button" id="underline-button" class="toolbar-list__button">
+          <span class="material-symbols-outlined">
+            format_underlined
+          </span>
+        </a>
+      </li>
+			<li>
+        <a role="button" id="spoiler-button" class="toolbar-list__button">
+          <span class="material-symbols-outlined">
+            hide_source
+          </span>
+        </a>
+      </li>
+      <li>
+        <a role="button" id="link-button" class="toolbar-list__button">
+          <span class="material-symbols-outlined">
+            link
+          </span>
+        </a>
+      </li>
+      <li>
+        <a role="button" id="code-button" class="toolbar-list__button">
+          <span class="material-symbols-outlined">
+            code
+          </span>
+        </a>
+      </li>
+		</ul>
+	</div>
+
+	<textarea class="md-editor__textarea" name="{{ widget.name }}" {% include "django/forms/widgets/attrs.html" %}>{% if widget.value %}{{ widget.value }}{% endif %}</textarea>
+	<details>
+		<summary>Особенности форматирования MarkdownV2 в Telegram</summary>
+		<div class="md-editor__help">
+			<ul class="md-editor__help-list">
+      <li>Любой символ с кодом от 1 до 126 включительно может быть экранирован в любом месте предшествующим символом <span class="md-editor__help-char">\</span>, и в этом случае он рассматривается как обычный символ, 
+        а не как часть разметки. Это означает, что символ <span class="md-editor__help-char">\</span> обычно должен быть экранирован предшествующим символом <span class="md-editor__help-char">\</span>.</li>
+			<li>Внутри блоков с кодом и преформатированным текстом все символы <span class="md-editor__help-char">`</span> и <span class="md-editor__help-char">\</span> должны быть экранированы предшествующим символом <span class="md-editor__help-char">\</span>.</li>
+			<li>Внутри части ссылки, содержащей адрес, т.е. в (http://www.example.com/), все <span class="md-editor__help-char">&#41;</span> и <span class="md-editor__help-char">\</span> должны быть экранированы предшествующим символом <span class="md-editor__help-char">\</span>.</li>
+      <li>Во всех остальных случаях символы 
+        <span class="md-editor__help-char">_</span> 
+        <span class="md-editor__help-char">*</span> 
+        <span class="md-editor__help-char">[</span> 
+        <span class="md-editor__help-char">]</span> 
+        <span class="md-editor__help-char">&#40;</span> 
+        <span class="md-editor__help-char">&#41;</span> 
+        <span class="md-editor__help-char">~</span> 
+        <span class="md-editor__help-char">`</span> 
+        <span class="md-editor__help-char">&gt;</span> 
+        <span class="md-editor__help-char">#</span> 
+        <span class="md-editor__help-char"> -</span> 
+        <span class="md-editor__help-char">|</span> 
+        <span class="md-editor__help-char">{</span> 
+        <span class="md-editor__help-char">}</span> 
+        <span class="md-editor__help-char">!</span> 
+        должен быть экранированы предшествующим символом <span class="md-editor__help-char">\</span>.</li>
+      <li>В случае одновременного использования <i>курсива</i> и <u>подчеркивания</u> вместо использования трёх последовательных символов <span class="md-editor__help-char">_</span> справа после обозначения курсива должен быть
+        символ <span class="md-editor__help-char">\r</span> как в ___ <i><u>курсив и подчеркивание</i></u> _\r__.</li>
+			<li>В качестве альтернативного значения для пользовательского смайлика указывается действительный смайлик, который будет 
+        отображаться вместо пользовательских смайлов в тех местах, где пользовательские смайлы не могут быть отображены (например, в системных уведомлениях) 
+			или если сообщение пересылается пользователем, не являющимся премиум-пользователем.</li> 
+			</ul>
+		</div>
+	  </details>
+</div>
+
