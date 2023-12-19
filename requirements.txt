@@ -1,5 +1,5 @@
 aiogram==3.2.0
 Django==5.0
 django-environ==0.11.2
-psycopg2==2.9.9
+psycopg==3.1.15
 redis==5.0.1
