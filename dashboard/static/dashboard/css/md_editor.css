@@ -80,6 +80,16 @@
     padding-left: 12px;
 }
 
+.toolbar-list__button_char {
+    font-size: 2rem;
+    position: relative;
+    bottom: 3px;
+}
+
+.toolbar-list__separator {
+    padding-right: 10px;
+}
+
 #preview-button {
     margin-left: auto;
 }

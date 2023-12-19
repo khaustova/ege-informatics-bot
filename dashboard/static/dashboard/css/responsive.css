@@ -150,6 +150,10 @@
         margin-left: 8px;
         flex: 1 1;
     }
+
+    .md-editor__preview_info.show {
+        padding-left: 0 !important;
+    }
 }
 
 @media (max-width: 768px) {

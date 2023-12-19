@@ -22,11 +22,23 @@
         })
 
         document.getElementById("link-button").addEventListener("click", function() {
-            makeElement(mdTextarea, "[]()")
+            makeElement(mdTextarea, `<a href="Ссылка">Название ссылки</a>`)
         })
 
         document.getElementById("code-button").addEventListener("click", function() {
-            styleText(mdTextarea, "```", "```")
+            styleText(mdTextarea, "<code>", "</code>")
+        })
+
+        document.getElementById("lt-button").addEventListener("click", function() {
+            makeElement(mdTextarea, `&lt;`)
+        })
+
+        document.getElementById("gt-button").addEventListener("click", function() {
+            makeElement(mdTextarea, `&gt;`)
+        })
+
+        document.getElementById("amp-button").addEventListener("click", function() {
+            makeElement(mdTextarea, `&amp;`)
         })
 
         let previewButton = document.getElementById('preview-button');
@@ -35,7 +47,7 @@
         let toolBar = document.getElementsByClassName("toolbar-list")[0]
 
         previewButton.addEventListener("click", function() {
-            previewField.innerHTML = mdTextarea.textContent.replace(/\n/g, '<br>\n');
+            previewField.innerHTML = mdTextarea.value.replace(/\n/g, '<br>\n');
             previewField.classList.toggle("show")
             mdTextarea.classList.toggle("hide")
             toolBar.classList.toggle("hide")
