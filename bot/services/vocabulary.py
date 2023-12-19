@@ -1,6 +1,4 @@
-from ..models import Quiz
+from ..models import Assignment
 
 class BotVocabulary:
-    async def start():
-        quiz = await Quiz.objects.aget(id=1)
-        return quiz.question
+    pass
