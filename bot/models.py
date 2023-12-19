@@ -1,6 +1,7 @@
 from django.db import models
 from dashboard.fields import MDEditorField
 
+
 class User(models.Model):
     user_id = models.PositiveBigIntegerField(
         primary_key=True, 
@@ -139,7 +140,7 @@ class Assignment(models.Model):
         verbose_name_plural = 'Задания'
     
     def __str__(self):
-        return f'{self.question[:64]}'
+        return f'{self.question[:128]}'
     
     
 class Results(models.Model):
@@ -161,4 +162,4 @@ class Results(models.Model):
     
     def __str__(self):
         status = 'правильно' if self.status else 'неправильно'
-        return f'{self.user}: {self.question.question[:64]} - {status}'
+        return f'{self.user}: {self.question} - {status}'
