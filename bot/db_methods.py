@@ -1,27 +1,28 @@
 from asgiref.sync import sync_to_async
-from random import randint  
+from random import shuffle
 from django.db.models import Subquery, OuterRef
-from django.db.models.aggregates import Count
 from .models import Assignment, Results, Category, Subcategory
 
 
 @sync_to_async
-def get_question(user_id):
-    questions = Assignment.objects.exclude(
-        pk__in=Subquery(
-            Results.objects.filter(
-                user__user_id=user_id, 
-                question=OuterRef('pk')
-            ).values('question')
-        )
-    )
+def get_assignments_ids(user_id: int, subcategory_id: int) -> list[int]:
+    assignments: Assignment = Assignment.objects.filter(
+        subcategory__id=subcategory_id).exclude(
+            pk__in=Subquery(
+                Results.objects.filter(
+                    user__user_id=user_id, 
+                    question=OuterRef('pk')
+                ).values('question')
+            )
+    ).values()
     
-    if questions.all().exists():
-        count = questions.aggregate(count=Count('id'))['count']
-        random_index = randint(0, count - 1)
-        return questions.all()[random_index]
+    assignments_ids: list[str] = []
+    for assignment in assignments:
+        assignments_ids.append(str(assignment['id']))
+        
+    shuffle(assignments_ids)
     
-    return None
+    return '_'.join(assignments_ids)
 
 
 @sync_to_async
