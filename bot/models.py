@@ -76,7 +76,7 @@ class Subcategory(models.Model):
         max_length=256, 
         verbose_name='Подкатегория'
     )
-    
+
     class Meta:
         verbose_name = 'Подкатегория'
         verbose_name_plural = 'Подкатегории'
@@ -84,13 +84,12 @@ class Subcategory(models.Model):
     def __str__(self):
         return self.subcategory
     
-    
-class QuestionTypes(models.TextChoices):
-    SELECT_ONE = 'select_one', 'Выбор ответа'
-    SHORT_REPLY = 'short_reply', 'Краткий ответ'
-    
-    
+  
 class Assignment(models.Model):
+    class QuestionTypes(models.TextChoices):
+        SELECT_ONE = 'select_one', 'Выбор ответа'
+        SHORT_REPLY = 'short_reply', 'Краткий ответ'   
+    
     category = models.ForeignKey(
         'Category',
         on_delete=models.CASCADE,
@@ -153,6 +152,15 @@ class Results(models.Model):
         'Assignment', 
         on_delete=models.CASCADE, 
         verbose_name='Задание'
+    )
+    subcategory = models.ForeignKey(
+        'Subcategory',
+        on_delete=models.CASCADE,
+        verbose_name='Подкатегория'
+    )
+    created_at = models.DateTimeField(
+        auto_now_add=True, 
+        verbose_name='Дата решения'
     )
     status = models.BooleanField(verbose_name='Правильный ответ')
     
