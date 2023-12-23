@@ -11,9 +11,9 @@ async def main():
     )
     
     dp.include_routers(
-        exam_handlers.router, 
+        admin_handlers.router,
         menu_handlers.router, 
-        admin_handlers.router
+        exam_handlers.router, 
     )
     
     await set_commands_menu(bot)
