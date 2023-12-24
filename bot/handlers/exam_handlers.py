@@ -22,7 +22,7 @@ router = Router()
 async def get_assignment(user_id: int | str, state: FSMContext):
     assignment_data: dict[str, Any] = await state.get_data()
     step: int = assignment_data['step'] + 1
-
+    
     try:
         assignment_id = int(assignment_data['assignments_ids'].split('_')[step])
     except:
@@ -34,7 +34,8 @@ async def get_assignment(user_id: int | str, state: FSMContext):
         await state.update_data(
             step=step,
             current_question_id=assignment.pk,
-            current_question_type=assignment.question_type
+            current_question_type=assignment.question_type,
+            assignment_number=step
         )   
         
         skip_keyboard = make_skip_keyboard()
@@ -45,7 +46,7 @@ async def get_assignment(user_id: int | str, state: FSMContext):
         
         if assignment.question_type == 'select_one':
             global exam_poll
-            exam_poll = await get_assignment_poll(user_id, assignment, skip_keyboard)
+            exam_poll = await get_assignment_poll(user_id, assignment, skip_keyboard, step, assignment_data['number_of_assignments'])
         elif assignment.question_type == 'short_reply':
             await state.update_data(correct_answer=assignment.correct_answer)
             await get_assignment_reply(user_id, assignment, skip_keyboard)
@@ -63,7 +64,7 @@ async def get_assignment(user_id: int | str, state: FSMContext):
 @router.poll_answer(StateFilter(TakeExam.get_result))
 async def get_result_assignment_poll(poll_answer: PollAnswer, state: FSMContext):
     assignment_data: dict[str, Any] = await state.get_data()
-    
+    print(poll_answer)
     result = True
     if exam_poll.poll.correct_option_id != poll_answer.option_ids[0]:
         result = False
@@ -115,22 +116,17 @@ async def get_result_assignment_reply(message: Message, state: FSMContext):
             status=result,
         ) 
         
-    if assignment_data['is_last_assignment']:
-        await state.set_state(TakeExam.get_question)
-        await get_assignment(message.from_user.id, state)
-    else:
-        await state.set_state(TakeExam.next_question) 
-        await exam_poll.edit_reply_markup(reply_markup=make_next_keyboard())
+        if assignment_data['is_last_assignment']:
+            await state.set_state(TakeExam.get_question)
+            await get_assignment(message.from_user.id, state)
+        else:
+            await state.set_state(TakeExam.next_question) 
+            await message.edit_reply_markup(reply_markup=make_next_keyboard())
     
 
 @router.callback_query(StateFilter(TakeExam.next_question), F.data=='next')
 async def get_next_assignment(callback: CallbackQuery, state: FSMContext):
-    assignment_data: dict[str, Any] = await state.get_data()
-    if assignment_data['current_question_type'] == 'select_one':
-        await exam_poll.edit_reply_markup(reply_markup=None)
-    elif assignment_data['current_question_type'] == 'short_reply':
-        await callback.message.edit_reply_markup(reply_markup=None)
-    
+    await callback.message.edit_reply_markup(reply_markup=None)
     await state.set_state(TakeExam.get_question)
     await get_assignment(callback.from_user.id, state)
     
@@ -138,14 +134,17 @@ async def get_next_assignment(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(StateFilter(TakeExam.get_result), F.data=='skip')
 async def skip_assignment(callback: CallbackQuery, state: FSMContext):
     assignment_data = await state.get_data()
-    assignments_ids_with_skip = assignment_data['assignments_ids'] + '_' + str(assignment_data['current_question_id'])
-    await state.update_data(assignments_ids=assignments_ids_with_skip)
+    step = assignment_data['step']
+    assignments_ids = assignment_data['assignments_ids'].split('_')
+    question_id = assignments_ids.pop(step)
+    assignments_ids_with_skip = '_'.join(assignments_ids) + '_' + question_id
     
-    if assignment_data['current_question_type'] == 'select_one':
-        await exam_poll.delete()
-    elif assignment_data['current_question_type'] == 'short_reply':
-        await callback.message.delete()
-        
+    await state.update_data(
+        assignments_ids=assignments_ids_with_skip,
+        step=step - 1
+    )
+    
+    await callback.message.delete()    
     await state.set_state(TakeExam.get_question)
     await get_assignment(callback.from_user.id, state)
     
@@ -163,11 +162,13 @@ async def restart_exam(callback: CallbackQuery, state: FSMContext):
         callback.from_user.id, 
         assignment_data['subcategory_id']
     )
+    number_of_assignments = len(assignments_ids.split('_'))
     
     await state.update_data(
         step=-1, 
         assignments_ids=assignments_ids, 
-        is_last_assignment=False
+        is_last_assignment=False,
+        number_of_assignments=number_of_assignments
     )
     await state.set_state(TakeExam.get_question)
     await get_assignment(callback.from_user.id, state)
