@@ -1,7 +1,7 @@
 import logging
 from .loader import bot, dp
 from .keyboards.commands_menu import set_commands_menu
-from .handlers import exam_handlers, menu_handlers, admin_handlers
+from .handlers import exam_handlers, menu_handlers, statistics_handlers, admin_handlers, about_handlers
 
 
 async def main():
@@ -12,6 +12,8 @@ async def main():
     
     dp.include_routers(
         admin_handlers.router,
+        statistics_handlers.router,
+        about_handlers.router,
         menu_handlers.router, 
         exam_handlers.router, 
     )
