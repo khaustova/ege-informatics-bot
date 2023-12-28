@@ -1,44 +1,42 @@
-import random
-from .builders import make_inline_keyboard
-from ..models import Assignment
-
-
-def make_choices_keyboard(question: Assignment):
-    choices_buttons = {}
-    choices = [
-        {question.choice_1: 'wrong_choice'},
-        {question.choice_2: 'wrong_choice'},
-        {question.choice_3: 'wrong_choice'},
-        {question.correct_answer: 'correct_choice'},
-    ]
-    random.shuffle(choices)
-    
-    for choice in choices:
-        choices_buttons.update(choice)
-    
-    return make_inline_keyboard(width=1, buttons=choices_buttons)
-    
-    
-    # choices_keyboard_builder = InlineKeyboardBuilder()
-    # choices_buttons: list[InlineKeyboardButton] = {}
-    
-    # for text, callback_data in choices:
-    #     choices_buttons.append(InlineKeyboardButton(
-    #         text=text,
-    #         callback_data=callback_data
-    #         )
-    #     )
-    
-    # random.shuffle(choices_buttons)
-    # choices_keyboard_builder.row(*choices_buttons, width=2)
-    
-    # return choices_keyboard_builder.as_markup()
+from aiogram.types import KeyboardButton, InlineKeyboardButton
+from aiogram.utils.keyboard import ReplyKeyboardBuilder, InlineKeyboardBuilder
+from ..services.vocabulary import BotEmoji
 
 
 def make_restart_keyboard():
-    restart_buttons = {
-        '\U00002705 Да, начать заново!': 'restart',
-        '\U0000274C Нет, вернуться в меню выбора': 'exit'
-    }
-    return make_inline_keyboard(width=1, buttons=restart_buttons)
+    """
+    Создаёт инлайн-клавиатуру, которая прикрепляется к сообщению, когда 
+    в выбранном разделе больше нет нерешённых заданий, и которая предлагает
+    сбросить прогресс по разделу или вернуться в меню выбора раздела.
+    """
+    restart_keyboard_builder = InlineKeyboardBuilder()
+    restart_keyboard_buttons: list[InlineKeyboardButton] = []
+    
+    restart_keyboard_buttons.append(InlineKeyboardButton(
+        text=f'{BotEmoji.green_checkmark} Да, начать заново!',
+        callback_data='restart'
+        )
+    )
+    
+    restart_keyboard_buttons.append(InlineKeyboardButton(
+        text=f'{BotEmoji.red_cross} Нет, вернуться в меню выбора',
+        callback_data='back_to_menu'
+        )
+    )
+
+    restart_keyboard_builder.row(*restart_keyboard_buttons, width=1)
+
+    return restart_keyboard_builder.as_markup()
+
+
+def make_exam_menu_keyboards():
+    keyboards_builder = ReplyKeyboardBuilder()
+    buttons = [
+        KeyboardButton(text='Вернуться в главное меню'),
+        KeyboardButton(text='Показать статистику')
+    ]
+    keyboards_builder.row(*buttons, width=1)
+    
+    return keyboards_builder.as_markup(resize_keyboard=True)
+    
     

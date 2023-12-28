@@ -3,10 +3,9 @@ from aiogram.types import BotCommand
 
 
 COMMANDS: dict[str, str] = {
-    '/admin': 'Панель администратора',
-    '/start': 'Загрузка бота',
-    '/quiz': 'Викторина', 
-    '/cancel': 'Отменить все состояния',
+    '/menu': 'Меню выбора заданий',
+    '/results': 'Мои результаты',
+    '/about': 'О боте'
 }
 
 
