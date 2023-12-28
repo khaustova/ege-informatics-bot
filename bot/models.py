@@ -1,5 +1,5 @@
 from django.db import models
-from dashboard.fields import MDEditorField
+from dashboard.fields import MEditorField
 
 
 class User(models.Model):
@@ -51,13 +51,6 @@ class Category(models.Model):
         verbose_name='Категория'
     )
     
-    @staticmethod
-    def get_default_category():
-        default_category, created = Category.objects.get_or_create(
-            category='Без категории'
-        )
-        return default_category.pk
-    
     class Meta:
         verbose_name = 'Категория'
         verbose_name_plural = 'Категории'
@@ -65,26 +58,7 @@ class Category(models.Model):
     def __str__(self):
         return self.category
     
-    
-class Subcategory(models.Model):
-    category = models.ForeignKey(
-        'Category',
-        on_delete=models.CASCADE,
-        verbose_name='Категория'
-    )
-    subcategory = models.CharField(
-        max_length=256, 
-        verbose_name='Подкатегория'
-    )
 
-    class Meta:
-        verbose_name = 'Подкатегория'
-        verbose_name_plural = 'Подкатегории'
-    
-    def __str__(self):
-        return self.subcategory
-    
-  
 class Assignment(models.Model):
     class QuestionTypes(models.TextChoices):
         SELECT_ONE = 'select_one', 'Выбор ответа'
@@ -95,17 +69,9 @@ class Assignment(models.Model):
         on_delete=models.CASCADE,
         blank=True,
         null=True,
-        default=Category.get_default_category,
         verbose_name='Категория'
     )
-    subcategory = models.ForeignKey(
-        'Subcategory',
-        on_delete=models.CASCADE,
-        blank=True,
-        null=True,
-        verbose_name='Подкатегория'
-    )
-    question = MDEditorField(verbose_name='Вопрос')
+    question = MEditorField(verbose_name='Вопрос')
     question_type = models.CharField(
         max_length=64,
         choices=QuestionTypes.choices,
@@ -133,6 +99,11 @@ class Assignment(models.Model):
         null=True,
         verbose_name='Неправильный ответ 3'
     )
+    image = models.ImageField(
+        upload_to ='images/',
+        blank=True,
+        null=True,
+        verbose_name='Изображение')
     
     class Meta:
         verbose_name = 'Задание'
@@ -153,10 +124,10 @@ class Results(models.Model):
         on_delete=models.CASCADE, 
         verbose_name='Задание'
     )
-    subcategory = models.ForeignKey(
-        'Subcategory',
+    category = models.ForeignKey(
+        'Category',
         on_delete=models.CASCADE,
-        verbose_name='Подкатегория'
+        verbose_name='Категория'
     )
     created_at = models.DateTimeField(
         auto_now_add=True, 

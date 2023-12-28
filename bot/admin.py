@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import User, Category, Subcategory, Assignment, Results
+from .models import User, Category, Assignment, Results
 
 
 @admin.register(User)
@@ -19,21 +19,13 @@ class CategoryAdmin(admin.ModelAdmin):
         'category',
     )
 
-
-@admin.register(Subcategory)
-class SubcategoryAdmin(admin.ModelAdmin):
-    list_display = (
-        'subcategory',
-    )
-
  
 @admin.register(Assignment)
 class AssignmentAdmin(admin.ModelAdmin):
     list_display = (
         'category',
-        'subcategory',
+        'category',
         'question'[:64],
-        'question_type',
         'correct_answer'[:64],
     )
 
