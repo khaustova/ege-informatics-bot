@@ -1,15 +1,15 @@
 from django import forms
 
 
-class MDEditorWidget(forms.Textarea):
-    template_name = 'dashboard/md_editor.html'
+class MEditorWidget(forms.Textarea):
+    template_name = 'dashboard/bot_message_editor.html'
 
     def _get_media(self):
         return forms.Media(
             css={
-                "all": ("dashboard/css/md_editor.css",)
+                "all": ("dashboard/css/bot.css",)
             },
             js=(
-                "dashboard/js/md_editor.js",
+                "dashboard/js/bot_message_editor.js",
             ))
     media = property(_get_media)

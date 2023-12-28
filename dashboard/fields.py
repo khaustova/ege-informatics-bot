@@ -1,11 +1,11 @@
 from django.db import models
-from .forms import MDEditorFormField
+from .forms import MEditorFormField
 
 
-class MDEditorField(models.TextField):
+class MEditorField(models.TextField):
     def formfield(self, **kwargs):
         defaults = {
-            'form_class': MDEditorFormField,
+            'form_class': MEditorFormField,
         }
         defaults.update(kwargs)
-        return super(MDEditorField, self).formfield(**defaults)
+        return super(MEditorField, self).formfield(**defaults)

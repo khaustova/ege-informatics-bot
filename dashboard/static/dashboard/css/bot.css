@@ -93,3 +93,7 @@
 #preview-button {
     margin-left: auto;
 }
+
+select[name="question_type"] {
+    width: calc(100% - 200px) !important;
+}

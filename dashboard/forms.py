@@ -1,10 +1,10 @@
 from django import forms
-from .widgets import MDEditorWidget
+from .widgets import MEditorWidget
 
    
-class MDEditorFormField(forms.fields.CharField):
+class MEditorFormField(forms.fields.CharField):
     def __init__(self, config_name='default', *args, **kwargs):
         kwargs.update({
-            'widget': MDEditorWidget()
+            'widget': MEditorWidget()
         })
-        super(MDEditorFormField, self).__init__(*args, **kwargs)   
+        super(MEditorFormField, self).__init__(*args, **kwargs)   
