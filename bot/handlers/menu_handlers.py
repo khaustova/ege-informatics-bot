@@ -1,10 +1,10 @@
+from typing import Any
 from aiogram import Router, F
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
 from .exam_handlers import get_assignment
-from ..db_methods import get_assignments_ids, get_random_assignments_ids
-from ..models import User
+from ..models import Assignment, Results, User
 from ..keyboards.factories import CategoryCallbackFactory
 from ..keyboards.menu_keyboards import make_menu_keyboard
 from ..states.take_exam import TakeExam
@@ -53,24 +53,26 @@ async def menu_command(message: Message, state: FSMContext):
 @router.callback_query(CategoryCallbackFactory.filter())
 async def get_category_assignments(callback: CallbackQuery, callback_data: CategoryCallbackFactory, state: FSMContext):
     """
-    Обработчик нажатия на инлайн-кнопку с названием категории заданий.
-    - Вызывает функцию get_assignments_ids() для получения строки с id вопросов
-    выбранной категории для конкретного пользователя.
-    - Вызывает функцию get_assignment() для получения задания.
+    Обработчик нажатия на инлайн-кнопку с названием категории заданий вызывает 
+    функцию для получения строки с id вопросов выбранной категории для 
+    конкретного пользователя и функцию получения задания.
     """
     await state.clear()
     
-    assignments_ids: str = await get_assignments_ids(
-        callback.from_user.id, 
-        callback_data.category_id
-    )
-    number_of_assignments: int = len(assignments_ids.split('_'))
-    
+    number_of_assignments: int = await Assignment.objects.filter(
+        category=callback_data.category_id
+    ).acount()
+    done: int = await Results.objects.filter(
+        user__user_id=callback.from_user.id, 
+        category__id=callback_data.category_id
+    ).acount()
+
+    step: int = done - 1 if done else -1
+
     await state.update_data(
-        step=-1, # шаг
-        category_id=callback_data.category_id, # id категории
-        assignments_ids=assignments_ids, # строка с id всех заданий
-        number_of_assignments=number_of_assignments, # количество заданий
+        step=step,
+        category_id=callback_data.category_id,
+        number_of_assignments=number_of_assignments
     )
     await state.set_state(TakeExam.get_question)
     
@@ -80,21 +82,15 @@ async def get_category_assignments(callback: CallbackQuery, callback_data: Categ
 @router.callback_query(F.data=='random')
 async def get_random_assignments(callback: CallbackQuery, state: FSMContext):
     """
-    Обработчик нажатия на инлайн-кнопку "Случайно".
-    - Вызывает функцию get_random_assignments_ids() для получения случайных 
-    десяти (или меньше) id заданий.
-    - Вызывает функцию get_assignment() для получения задания.
+    Обработчик нажатия на инлайн-кнопку "Случайно" вызывает функцию 
+    для получения случайных десяти (или меньше) заданий и функцию получения 
+    задания.
     """
     state.clear()
-    
-    assignments_ids: str = await get_random_assignments_ids()
-    number_of_assignments: int = len(assignments_ids.split('_'))
     
     await state.update_data(
         step=-1, 
         category_id=None,
-        assignments_ids=assignments_ids,
-        number_of_assignments=number_of_assignments,
     )
     await state.set_state(TakeExam.get_question)
     
@@ -103,7 +99,7 @@ async def get_random_assignments(callback: CallbackQuery, state: FSMContext):
 @router.callback_query(StateFilter(TakeExam.no_more_questions), F.data=='back_to_menu')
 async def back_to_menu(callback: CallbackQuery, state: FSMContext):
     """
-    Обработчик нажатия инлайн-кнопки "Вернуться в меню выбора" присылает 
+    Обработчик нажатия инлайн-кнопки возвращения в меню выбора задания присылает 
     сообщение с текстом команды /menu и её инлайн-клавиатурой.
     """
     await state.clear()
@@ -113,3 +109,25 @@ async def back_to_menu(callback: CallbackQuery, state: FSMContext):
         reply_markup=await make_menu_keyboard(callback.from_user.id)
     )
     
+
+@router.callback_query(StateFilter(TakeExam.no_more_questions), F.data=='restart')
+async def restart_exam(callback: CallbackQuery, state: FSMContext):
+    """
+    Обработчик нажатия инлайн-кнопки перезапуска заданий в разделе удаляет 
+    весь текущий прогресс пользователя по разделу и вызывает функцию получения
+    задания.
+    """
+    assignment_data: dict[str, Any] = await state.get_data()
+    await Results.objects.filter(
+        user__user_id=callback.from_user.id,
+        category__id=assignment_data['category_id']
+    ).adelete()
+    
+    number_of_assignments: int = await Assignment.objects.filter(category=assignment_data['category_id']).acount()
+
+    await state.update_data(
+        step=-1, 
+        number_of_assignments=number_of_assignments
+    )
+    await state.set_state(TakeExam.get_question)
+    await get_assignment(callback.from_user.id, state)

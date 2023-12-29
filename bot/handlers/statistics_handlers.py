@@ -12,7 +12,13 @@ router = Router()
 
 @router.message(Command(commands=['results']))
 async def start_command(message: Message, state: FSMContext):
+    """
+    Обработчик команды /results отправляет сообщение с общей статистикой 
+    пользователя по разделам и инлайн-клавиатурой со статистикой по каждому
+    из разделом с возможностью сброса прогресса.
+    """
     await state.clear()
+    
     results_success = await Results.objects.filter(
         user__user_id=message.from_user.id, 
         status=True
@@ -22,6 +28,7 @@ async def start_command(message: Message, state: FSMContext):
         status=False
     ).acount()
     all_assignments = await Assignment.objects.all().acount()
+    
     await message.answer(
         text=BotVocabulary.results(
             results_success=results_success, 
@@ -33,7 +40,14 @@ async def start_command(message: Message, state: FSMContext):
     
 
 @router.callback_query(StatisticCategoryCallbackFactory.filter())
-async def restart_category(callback: CallbackQuery, callback_data: StatisticCategoryCallbackFactory):
+async def restart_category(
+    callback: CallbackQuery, 
+    callback_data: StatisticCategoryCallbackFactory
+):
+    """
+    Обработчик нажатия инлайн-кнопки сброса прогресса по разделу, при наличии 
+    результатов пользователя по нему, удаляет его результаты. 
+    """
     result = await Results.objects.filter(
         user__user_id=callback.from_user.id
     ).afirst()
