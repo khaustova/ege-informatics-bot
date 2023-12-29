@@ -1,8 +1,15 @@
+from asgiref.sync import sync_to_async
+from random import randint
 from django.db import models
+from django.db.models import Subquery, OuterRef
+from django.db.models.aggregates import Count
 from dashboard.fields import MEditorField
 
 
 class User(models.Model):
+    """
+    Модель пользователя Телеграм.
+    """
     user_id = models.PositiveBigIntegerField(
         primary_key=True, 
         verbose_name='Telegram ID'
@@ -46,6 +53,17 @@ class User(models.Model):
     
     
 class Category(models.Model):
+    """
+    Модель категории заданий.
+    """
+    class CategoryManager(models.Manager):
+        @sync_to_async
+        def get_categories(self):
+            return list(self.get_queryset())
+
+    objects = models.Manager()
+    category_manager = CategoryManager()
+    
     category = models.CharField(
         max_length=256, 
         verbose_name='Категория'
@@ -60,9 +78,43 @@ class Category(models.Model):
     
 
 class Assignment(models.Model):
+    """
+    Модель задания, которое может быть с кратким ответом или с выбором ответа.
+    """
     class QuestionTypes(models.TextChoices):
         SELECT_ONE = 'select_one', 'Выбор ответа'
         SHORT_REPLY = 'short_reply', 'Краткий ответ'   
+        
+    class AssignmentManager(models.Manager):
+        """
+        Менеджер модели задания для асинхронного использования.
+        """
+        @sync_to_async
+        def get_assignment(self, user_id: int | str, category_id: int):
+            """
+            Возвращает первое несделанное задание для пользователя из выбранной 
+            категории.
+            """
+            return self.get_queryset().filter(
+                category__id=category_id).exclude(
+                    pk__in=Subquery(Results.objects.filter(
+                        user__user_id=user_id, 
+                        question=OuterRef('pk')
+                    ).values('question')
+                )
+            ).first()
+                
+        @sync_to_async
+        def get_random_assignment(self):
+            """
+            Возвращает случайное задание.
+            """
+            count = self.aggregate(count=Count('id'))['count']
+            random_index = randint(0, count - 1)
+            return self.get_queryset()[random_index]
+
+    objects = models.Manager()
+    exam_manager = AssignmentManager()
     
     category = models.ForeignKey(
         'Category',
@@ -114,6 +166,9 @@ class Assignment(models.Model):
     
     
 class Results(models.Model):
+    """
+    Модель с результатами пользователя по каждому из сделанных  заданий.
+    """
     user = models.ForeignKey(
         'User', 
         on_delete=models.CASCADE, 
