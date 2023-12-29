@@ -51,7 +51,11 @@ async def menu_command(message: Message, state: FSMContext):
 
 
 @router.callback_query(CategoryCallbackFactory.filter())
-async def get_category_assignments(callback: CallbackQuery, callback_data: CategoryCallbackFactory, state: FSMContext):
+async def get_category_assignments(
+    callback: CallbackQuery, 
+    callback_data: CategoryCallbackFactory, 
+    state: FSMContext
+):
     """
     Обработчик нажатия на инлайн-кнопку с названием категории заданий вызывает 
     функцию для получения строки с id вопросов выбранной категории для 
@@ -123,7 +127,9 @@ async def restart_exam(callback: CallbackQuery, state: FSMContext):
         category__id=assignment_data['category_id']
     ).adelete()
     
-    number_of_assignments: int = await Assignment.objects.filter(category=assignment_data['category_id']).acount()
+    number_of_assignments: int = await Assignment.objects.filter(
+        category=assignment_data['category_id']
+    ).acount()
 
     await state.update_data(
         step=-1, 
