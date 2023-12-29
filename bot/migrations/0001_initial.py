@@ -56,13 +56,13 @@ class Migration(migrations.Migration):
             name='Assignment',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('question', dashboard.fields.MDEditorField(verbose_name='Вопрос')),
+                ('question', dashboard.fields.MEditorField(verbose_name='Вопрос')),
                 ('question_type', models.CharField(choices=[('select_one', 'Выбор ответа'), ('short_reply', 'Краткий ответ')], max_length=64, verbose_name='Тип вопроса')),
                 ('correct_answer', models.CharField(max_length=1024, verbose_name='Правильный ответ')),
                 ('choice_1', models.CharField(blank=True, max_length=1024, null=True, verbose_name='Неправильный ответ 1')),
                 ('choice_2', models.CharField(blank=True, max_length=1024, null=True, verbose_name='Неправильный ответ 2')),
                 ('choice_3', models.CharField(blank=True, max_length=1024, null=True, verbose_name='Неправильный ответ 3')),
-                ('category', models.ForeignKey(blank=True, default=bot.models.Category.get_default_category, null=True, on_delete=django.db.models.deletion.CASCADE, to='bot.category', verbose_name='Категория')),
+                ('category', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='bot.category', verbose_name='Категория')),
                 ('subcategory', models.ForeignKey(blank=True, null=True, on_delete=django.db.models.deletion.CASCADE, to='bot.subcategory', verbose_name='Подкатегория')),
             ],
             options={
