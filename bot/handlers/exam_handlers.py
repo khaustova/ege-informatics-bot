@@ -122,10 +122,9 @@ async def get_result_assignment_reply(message: Message, state: FSMContext):
                 category=await Category.objects.aget(id=assignment_data['category_id']),
                 status=result,
             ) 
-    await state.set_state(TakeExam.get_question)
-    
-    
-    if assignment_data.get('random'):
-        await get_random_assignment(message.from_user.id, state)
-    else:
-        await get_assignment(message.from_user.id, state)   
+            
+        await state.set_state(TakeExam.get_question)
+        if assignment_data.get('random'):
+            await get_random_assignment(message.from_user.id, state)
+        else:
+            await get_assignment(message.from_user.id, state)   

@@ -30,7 +30,7 @@ async def make_menu_keyboard(user_id) -> InlineKeyboardMarkup:
         )
         
     categories_buttons.append(InlineKeyboardButton(
-        text=f'{BotEmoji.dice} Случайно',
+        text=f'{BotEmoji.infinity} Случайно',
         callback_data='random'
         )
     )

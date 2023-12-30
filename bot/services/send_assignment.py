@@ -27,6 +27,12 @@ async def send_assignment(
         current_question_id=assignment.pk,
         current_question_type=assignment.question_type,
     )   
+         
+    if assignment.image:
+        await bot.send_photo(
+            chat_id=user_id,
+            photo=FSInputFile('media/' + str(assignment.image))
+        )
     
     if assignment.question_type == 'select_one':
         options: list[str] = [
@@ -43,7 +49,6 @@ async def send_assignment(
         else:
             question_text = f'Задание {step+1} из {assignment_data.get("number_of_assignments")}\n\n'
         
-        
         poll_message: Message = await bot.send_poll(
             chat_id=user_id,
             question=question_text,
@@ -57,11 +62,11 @@ async def send_assignment(
             poll_message_id=poll_message.message_id
         )
     elif assignment.question_type == 'short_reply':  
-        
         if assignment_data.get('random'):
             question_text = assignment.question
         else:
-            question_text = f'<b>Задание {step+1} из {assignment_data.get("number_of_assignments")}</b>\n\n' + assignment.question
+            question_text = f'<b>Задание {step+1} из {assignment_data.get("number_of_assignments")}</b>\n\n' \
+                + assignment.question
         
         await bot.send_message(
             chat_id=user_id,
@@ -69,13 +74,6 @@ async def send_assignment(
             parse_mode=ParseMode.HTML
         )
         await state.update_data(correct_answer=assignment.correct_answer)
-        
-    if assignment.image:
-        image_message = await bot.send_photo(
-            chat_id=user_id,
-            photo=FSInputFile('media/' + str(assignment.image))
-        )
-        await state.update_data(image_message_id=image_message.message_id)
             
     await state.set_state(TakeExam.get_result)
 
