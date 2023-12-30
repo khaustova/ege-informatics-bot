@@ -3,7 +3,7 @@ from aiogram import Router, F
 from aiogram.filters import Command, StateFilter
 from aiogram.fsm.context import FSMContext
 from aiogram.types import Message, CallbackQuery
-from .exam_handlers import get_assignment
+from .exam_handlers import get_assignment, get_random_assignment
 from ..models import Assignment, Results, User
 from ..keyboards.factories import CategoryCallbackFactory
 from ..keyboards.menu_keyboards import make_menu_keyboard
@@ -57,9 +57,9 @@ async def get_category_assignments(
     state: FSMContext
 ):
     """
-    Обработчик нажатия на инлайн-кнопку с названием категории заданий вызывает 
-    функцию для получения строки с id вопросов выбранной категории для 
-    конкретного пользователя и функцию получения задания.
+    Обработчик нажатия на инлайн-кнопку с названием категории заданий определяет
+    количество заданий в категории, количество решенных заданий и, в соответствии
+    с этим, текующий шаг, после чего вызывает функцию получения задания.
     """
     await state.clear()
     
@@ -81,6 +81,19 @@ async def get_category_assignments(
     await state.set_state(TakeExam.get_question)
     
     await get_assignment(callback.from_user.id, state)
+    
+    
+    
+@router.callback_query(F.data=='random')
+async def random_mode(callback: CallbackQuery, state: FSMContext):
+    """
+    Обработчик нажатия на инлайн-кнопку с выбором режима случайных заданий.
+    """
+    await state.clear()
+    await state.update_data(random=True)
+    await state.set_state(TakeExam.get_question)
+    
+    await get_random_assignment(callback.from_user.id, state)
     
 
 @router.callback_query(F.data=='random')

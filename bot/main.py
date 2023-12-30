@@ -6,9 +6,11 @@ from .handlers import exam_handlers, menu_handlers, statistics_handlers, admin_h
 
 async def main():
     logging.basicConfig(
-        level=logging.INFO,
-        format='%(asctime)s - %(levelname)s - %(name)s - %(message)s',
+        level=logging.DEBUG,
+        #filename='logs/bot.log',filemode='w',
+        format='%(asctime)s: %(levelname)s - %(name)s - %(message)s',
     )
+    
     
     dp.include_routers(
         admin_handlers.router,

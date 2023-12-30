@@ -40,6 +40,29 @@ async def get_assignment(user_id: int | str, state: FSMContext):
             category_id=assignment_data['category_id'], 
             state=state
         )
+        
+        
+@router.message(StateFilter(TakeExam.get_question))
+async def get_random_assignment(user_id: int | str, state: FSMContext):
+    """
+    Отправляет пользователю случайное задание.
+    """
+    assignment_data: dict[str, Any] = await state.get_data()
+
+    assignment: Assignment = await Assignment.exam_manager.get_random_assignment()
+      
+    if assignment:
+        await send_assignment(
+            user_id=user_id,
+            assignment=assignment, 
+            state=state
+        )
+    else:
+        await end_of_assignment(
+            user_id=user_id, 
+            category_id=assignment_data['category_id'], 
+            state=state
+        )
 
 
 @router.poll_answer(StateFilter(TakeExam.get_result))
@@ -48,21 +71,25 @@ async def get_result_assignment_poll(poll_answer: PollAnswer, state: FSMContext)
     Обработчик выбора ответа на задание в виде викторины.
     """
     assignment_data: dict[str, Any] = await state.get_data()
-
-    result: bool = True
-    if assignment_data['correct_option_id'] != poll_answer.option_ids[0]:
-        result = False
     
+    if not assignment_data.get('random'):
+        result: bool = True
+        if assignment_data['correct_option_id'] != poll_answer.option_ids[0]:
+            result = False
         
-    await Results.objects.acreate(
-        user=await User.objects.aget(user_id=poll_answer.user.id),
-        question=await Assignment.objects.aget(id=assignment_data['current_question_id']),
-        category=await Category.objects.aget(id=assignment_data['category_id']),
-        status=result,
-    )  
+        await Results.objects.acreate(
+            user=await User.objects.aget(user_id=poll_answer.user.id),
+            question=await Assignment.objects.aget(id=assignment_data['current_question_id']),
+            category=await Category.objects.aget(id=assignment_data['category_id']),
+            status=result,
+        )  
 
     await state.set_state(TakeExam.get_question)
-    await get_assignment(poll_answer.user.id, state)
+    
+    if assignment_data.get('random'):
+        await get_random_assignment(poll_answer.user.id, state)
+    else:
+        await get_assignment(poll_answer.user.id, state)   
     
         
 @router.message(StateFilter(TakeExam.get_result))
@@ -88,11 +115,17 @@ async def get_result_assignment_reply(message: Message, state: FSMContext):
                 text=BotVocabulary.message_failure,
             )
             
-        await Results.objects.acreate(
-            user=await User.objects.aget(user_id=message.from_user.id),
-            question=await Assignment.objects.aget(id=assignment_data['current_question_id']),
-            category=await Category.objects.aget(id=assignment_data['category_id']),
-            status=result,
-        ) 
+        if not assignment_data.get('random'):
+            await Results.objects.acreate(
+                user=await User.objects.aget(user_id=message.from_user.id),
+                question=await Assignment.objects.aget(id=assignment_data['current_question_id']),
+                category=await Category.objects.aget(id=assignment_data['category_id']),
+                status=result,
+            ) 
     await state.set_state(TakeExam.get_question)
-    await get_assignment(message.from_user.id, state)   
+    
+    
+    if assignment_data.get('random'):
+        await get_random_assignment(message.from_user.id, state)
+    else:
+        await get_assignment(message.from_user.id, state)   

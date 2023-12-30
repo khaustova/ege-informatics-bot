@@ -1,6 +1,7 @@
 from random import shuffle
 from typing import Any
 from aiogram.fsm.context import FSMContext
+from aiogram.enums import ParseMode
 from aiogram.types import Message, FSInputFile
 from ..main import bot
 from ..models import Assignment, Category, Results
@@ -19,14 +20,14 @@ async def send_assignment(
     при наличии, изображение.
     """
     assignment_data: dict[str, Any] = await state.get_data()
-    step: int = assignment_data['step'] + 1
+    step: int = assignment_data.get('step', -1) + 1
 
     await state.update_data(
         step=step,
         current_question_id=assignment.pk,
         current_question_type=assignment.question_type,
     )   
-
+    
     if assignment.question_type == 'select_one':
         options: list[str] = [
             assignment.choice_1, 
@@ -36,9 +37,16 @@ async def send_assignment(
         ]
         shuffle(options)
         correct_option_id: int = options.index(assignment.correct_answer)
+        
+        if assignment_data.get('random'):
+            question_text = assignment.question
+        else:
+            question_text = f'Задание {step+1} из {assignment_data.get("number_of_assignments")}\n\n'
+        
+        
         poll_message: Message = await bot.send_poll(
             chat_id=user_id,
-            question=f'Задание {step+1} из {assignment_data["number_of_assignments"]}\n\n' + assignment.question,
+            question=question_text,
             options=options,
             type='quiz',
             correct_option_id=correct_option_id,
@@ -49,9 +57,16 @@ async def send_assignment(
             poll_message_id=poll_message.message_id
         )
     elif assignment.question_type == 'short_reply':  
+        
+        if assignment_data.get('random'):
+            question_text = assignment.question
+        else:
+            question_text = f'<b>Задание {step+1} из {assignment_data.get("number_of_assignments")}</b>\n\n' + assignment.question
+        
         await bot.send_message(
             chat_id=user_id,
-            text=f'Задание {step + 1} из {assignment_data["number_of_assignments"]}\n\n' + assignment.question,
+            text=question_text,
+            parse_mode=ParseMode.HTML
         )
         await state.update_data(correct_answer=assignment.correct_answer)
         
