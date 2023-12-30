@@ -43,14 +43,17 @@ async def menu_command(message: Message, state: FSMContext):
     Обработчик команды /menu выводит  инлайн-клавитауру с меню выбора заданий.
     """
     await state.clear()
-     
+    await state.set_state(TakeExam.start_exam)
+    
     await message.answer(
         text=BotVocabulary.command_menu,
         reply_markup=await make_menu_keyboard(message.from_user.id)
     )
+    
 
 
-@router.callback_query(CategoryCallbackFactory.filter())
+
+@router.callback_query(StateFilter(TakeExam.start_exam), CategoryCallbackFactory.filter())
 async def get_category_assignments(
     callback: CallbackQuery, 
     callback_data: CategoryCallbackFactory, 
@@ -61,7 +64,7 @@ async def get_category_assignments(
     количество заданий в категории, количество решенных заданий и, в соответствии
     с этим, текующий шаг, после чего вызывает функцию получения задания.
     """
-    await state.clear()
+    #await state.clear()
     
     number_of_assignments: int = await Assignment.objects.filter(
         category=callback_data.category_id
@@ -84,12 +87,12 @@ async def get_category_assignments(
     
     
     
-@router.callback_query(F.data=='random')
+@router.callback_query(StateFilter(TakeExam.start_exam), F.data=='random')
 async def random_mode(callback: CallbackQuery, state: FSMContext):
     """
     Обработчик нажатия на инлайн-кнопку с выбором режима случайных заданий.
     """
-    await state.clear()
+    #await state.clear()
     await state.update_data(random=True)
     await state.set_state(TakeExam.get_question)
     
@@ -120,6 +123,7 @@ async def back_to_menu(callback: CallbackQuery, state: FSMContext):
     сообщение с текстом команды /menu и её инлайн-клавиатурой.
     """
     await state.clear()
+    await state.set_state(TakeExam.start_exam)
     
     await callback.message.answer(
         text=BotVocabulary.command_menu,
