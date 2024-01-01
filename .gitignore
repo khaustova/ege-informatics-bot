@@ -1,4 +1,5 @@
 .venv
 .env
+logs
 __pycache__
 media
