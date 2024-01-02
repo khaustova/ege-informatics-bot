@@ -2,7 +2,11 @@ from aiogram import Bot, Dispatcher
 from aiogram.fsm.storage.redis import RedisStorage, Redis
 from .configuration import config
 
-redis = Redis(host='localhost', port=6379, db=0)
+redis = Redis(
+    host=config.redis.host, 
+    port=config.redis.port, 
+    db=0
+)
 storage = RedisStorage(redis=redis)
 
 dp = Dispatcher(storage=storage)

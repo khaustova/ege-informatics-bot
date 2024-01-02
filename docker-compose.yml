@@ -14,21 +14,19 @@ services:
       - postgres
       - redis
 
-  # bot:
-  #   build: .
-  #   restart: always
-  #   command: python manage.py runbot
-  #   ports:
-  #     - 7771:7771
-  #   volumes:
-  #     - .:/usr/src/app
-  #   env_file:
-  #     - .env
-  #   depends_on:
-  #     - postgres
-  #     - redis
-  #     - web
-
+  bot:
+    build: .
+    restart: always
+    command: python manage.py runbot
+    volumes:
+      - .:/usr/src/app
+    env_file:
+      - .env
+    depends_on:
+      - postgres
+      - redis
+      - web
+      
   postgres:
     image: postgres:15.3
     env_file:

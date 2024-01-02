@@ -7,8 +7,15 @@ class BotConfig:
     
     
 @dataclass
+class RedisConfig:
+    host: str = getenv('REDIS_HOST')
+    port: int = getenv('REDIS_PORT')
+    
+@dataclass
 class Configuration:
     bot = BotConfig
+    redis = RedisConfig
     
+
 
 config = Configuration()
