@@ -2,7 +2,8 @@ from random import shuffle
 from typing import Any
 from aiogram.fsm.context import FSMContext
 from aiogram.enums import ParseMode
-from aiogram.types import Message, FSInputFile
+from aiogram.types import Message, FSInputFile, URLInputFile
+from django.conf import settings
 from ..main import bot
 from ..models import Assignment, Category, Results
 from ..keyboards.exam_keyboards import make_restart_keyboard
@@ -29,10 +30,12 @@ async def send_assignment(
     )   
          
     if assignment.image:
+        path = str(settings.MEDIA_ROOT) + '/' + str(assignment.image)
         await bot.send_photo(
             chat_id=user_id,
-            photo=FSInputFile('media/' + str(assignment.image))
+            photo=FSInputFile(path=path)
         )
+
     
     if assignment.question_type == 'select_one':
         options: list[str] = [
