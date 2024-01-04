@@ -14,8 +14,8 @@ Telegram-бот для подготовки к ЕГЭ по информатик�
 :small_orange_diamond: Python 3.11.4  
 :small_orange_diamond: Aiogram 3.2.0  
 :small_orange_diamond: Django 5.0  
-:small_orange_diamond: Redis 5.0.1  
-:small_orange_diamond: Psycopg 3.1.15
+:small_orange_diamond: Redis 7.0.5   
+:small_orange_diamond: PostgreSQL 15.3
 ### 3. Запуск ###
 1. Клонировать репозиторий:
 ```
